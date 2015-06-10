@@ -1,0 +1,57 @@
+Question 1: Write a pig script to find the first 3 (or less than 3) twitter handles mentioned in each tweet using regex_extract() function
+
+a = load '/user/twitter/full_text' AS (id:chararray, ts:chararray, location:chararray, lat:float, lon:float, tweet:chararray);
+b = foreach a generate CONCAT (id, ts) as tweetid, flatten(TOKENIZE(tweet)) as token;
+b1 = FILTER b BY token matches '@USER_\\S{8}';
+c = group b1 by tweetid;
+d = foreach c generate flatten(group) as tweetid, b1.token, COUNT($1) as cnt;
+e = FILTER d BY cnt < 4;
+f = order e by cnt desc;
+final = limit f 30;
+dump final;
+
+Question 2: Find 3 most popular topics (hashtags) in the full_text data
+
+a = load '/user/twitter/full_text' AS (id:chararray, ts:chararray, location:chararray, lat:float, lon:float, tweet:chararray);
+b = foreach a generate flatten(TOKENIZE(LOWER(tweet))) as token;
+c = FILTER b BY token matches '#\\w\\w+';
+d = group c by token;
+e = foreach d generate flatten(group) as hash, COUNT($1) as cnt;
+f = order e by cnt desc;
+final = limit f 30;
+dump final;
+
+Top 3 hashtags:
+(#ff,5790)
+(#nowplaying,3004)
+(#inhighschool,2760)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
